@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}Social Network{% endblock %}</title>
+
+        <!--Tailwind CSS-->
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <link href="{% static 'network/styles1.css' %}" rel="stylesheet">
+      
+        <!--Font-->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+      
+        <!--React, ReactDom and Babel-->
+        <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    </head>
+    <body class="bg-[#060126] text-[#F7F6F4]">
+        
+        {% block body %}
+        {% endblock %}
+
+        {% block script %}
+        {% endblock %}
+        
+    </body>
+</html>
