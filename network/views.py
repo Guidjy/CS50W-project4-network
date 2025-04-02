@@ -4,47 +4,31 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-
 import json
 
 from .models import User
 
 
 def index(request):
-    return render(request, "network/index.html")
-
-
-def current_user(request):
-    """
-    Returns information about the current user (if logged in) to be rendered on the client side
-    """
-    if request.user.is_authenticated:
-        return JsonResponse({'isLoggedIn': True, 'username': request.user.username}, status=200)
-    else:
-        return JsonResponse({'isLoggedIn': False}, status=200)
-        
+    return render(request, "network/index.html")        
 
 
 @csrf_exempt
 def login_view(request):
     if request.method == "POST":
-#
-        # Attempt to sign user in
-        print(request.body)
+        # Attempt to sign user in        
+        user_input = json.loads(request.body)
+        username = user_input['username']
+        password = user_input['password']
+        user = authenticate(request, username=username, password=password)
         
-        
-        #username = request.POST["username"]
-        #password = request.POST["password"]
-        #user = authenticate(request, username=username, password=password)
-
         # Check if authentication successful
-        #if user is not None:
-        #    login(request, user)
-        #    return HttpResponseRedirect(reverse("index"))
-        #else:
-        #    return render(request, "network/login.html", {
-        #        "message": "Invalid username and/or password."
-        #    })
+        if user is not None:
+            login(request, user)
+            return JsonResponse({'message': 'user successfully logged in', 'status': 200}, status=200);
+        else:
+            return JsonResponse({'message': 'Invalid username and/or password.', 'status': 401}, status=401);
+
     else:
         return render(request, "network/login.html")
 
