@@ -1,18 +1,18 @@
 function App() {
-  const [username, setUsername] = React.useState('Guidjy');
+  const [username, setUsername] = React.useState('');
   const [loggedIn, setLoggedIn] = React.useState(true);
 
-  // gets info on the current user
-  // uuuuuuhh peep  https://react.dev/reference/react/useEffect 
+  // updates the client side with user info
+  // uuuuuuhh peep https://react.dev/reference/react/useEffect 
   React.useEffect(() => {
     fetch('/current_user')
     .then(response => response.json())
     .then(user => {
-      console.log(user);
       if (user.isLoggedIn) {
-        console.log(user.username);
+        setUsername(user.username);
+        setLoggedIn(True);
       } else {
-        console.log('not logged in');
+        setLoggedIn(False);
       }
     });
   }, []);
