@@ -1,6 +1,8 @@
 function App() {
   const [username, setUsername] = React.useState(null);
   const [loggedIn, setLoggedIn] = React.useState(false);
+  const [displayAlert, setDisplayAlert] = React.useState(false);
+  const [alertMessage, setAlertMessage] = React.useState('');
 
   // updates the client side with user info
   // uuuuuuhh peep https://react.dev/reference/react/useEffect 
@@ -30,21 +32,25 @@ function App() {
   }
 
   // handles login logic :P
-  function login() {
+  function login(username, password) {
     fetch('/login', {
       method: 'POST',
       body: JSON.stringify({
-        username: 'guidjy',
-        password: 'craft22@'
+        username: username,
+        password: password
       })
     })
     .then(response => response.json())
     .then(response => {
       // checks wether the user was successfully logged in or not
       if(response.status === 200) {
+        setUsername(username);
         setLoggedIn(true);
+        setDisplayAlert(false);
       } else {
         setLoggedIn(false);
+        setDisplayAlert(true);
+        setAlertMessage(response.message);
       }
     })
   }
@@ -56,9 +62,21 @@ function App() {
   return (
     <div className="flex">
       <SidebarLeft loggedIn={loggedIn} username={username} onLogout={logout} onLogin={login} />
+      {/* this div is here to place the posts div correctly */}
       <div className="w-1/4"></div>
       <div id="posts" className="w-3/4 xl:w-6/12 min-h-screen h-full xl:border-r-2 border-[#023E73]">
+        {displayAlert && (<Alert message={alertMessage} />)}
+        {!loggedIn && (<LoginForm onSubmit={login} />)}
       </div>
+    </div>
+  );
+}
+
+
+function Alert({message}) {
+  return (
+    <div class="bg-[#F24B59] border-2 border-[#BF3434] rounded text-center font-bold p-3 m-5">
+      {message}
     </div>
   );
 }
@@ -136,5 +154,27 @@ function SidebarLeft({loggedIn, username, onLogout, onLogin}) {
     </section>
   );
 }
+
+
+function LoginForm({onSubmit}) {
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
+  return (
+    <div className="m-5 py-15 bg-[#1D0259] rounded-lg">
+      <form class="flex flex-col items-center">
+        {/* peep the onChange events in the input fields. The idea is to prevent calling document.querySelector
+        which should probably make things easier in bigger forms idk :P */}
+        <input id="login-username-field" class="text-center rounded-md bg-[#060126] mb-7 py-2 w-3/4" type="text" placeholder="Username" autoFocus 
+        onChange={(event) => setUsername(event.target.value)}/>
+        <input id="login-password-field" class="text-center rounded-md bg-[#060126] mb-7 py-2 w-3/4" type="password" placeholder="Password" 
+        onChange={(event) => setPassword(event.target.value)}/>
+        <input class="bg-[#0455BF] rounded-md hover:bg-[#3084F2] py-2 w-1/2" type="submit" value="Login"
+        onClick={(event) => {event.preventDefault(); onSubmit?.(username, password); }} />
+      </form>
+    </div>
+  )
+}
+
 
 ReactDOM.render(<App />, document.querySelector('#app'));
