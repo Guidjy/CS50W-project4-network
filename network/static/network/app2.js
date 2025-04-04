@@ -18,7 +18,6 @@ function App() {
     });
   }, []);
 
-
   // handles logout logic :P
   function logout() {
     fetch('/logout')
@@ -55,8 +54,13 @@ function App() {
   }
 
   return (
-    <div>
-      <Sidebar loggedIn={loggedIn} username={username} onLogout={logout} onLogin={login} />
+    <div className="flex">
+      <SidebarLeft loggedIn={loggedIn} username={username} onLogout={logout} onLogin={login} />
+      <div className="w-1/4">
+      </div>
+      <div className="w-6/12 min-h-screen h-full border-r-2 border-[#023E73]">
+        asdasd
+      </div>
     </div>
   );
 }
@@ -77,10 +81,9 @@ function SidebarItem({ icon, label, onClick }) {
 }
 
 
-function Sidebar({loggedIn, username, onLogout, onLogin}) {
-
+function SidebarLeft({loggedIn, username, onLogout, onLogin}) {
   return (
-    <section id="sidebar">
+    <section id="sidebar" className="w-1/4 h-screen fixed border-r-2 border-[#023E73]">
       {/* Logo */}
       <div>
         <h1>Logo</h1>
@@ -132,6 +135,5 @@ function Sidebar({loggedIn, username, onLogout, onLogin}) {
     </section>
   );
 }
-
 
 ReactDOM.render(<App />, document.querySelector('#app'));
