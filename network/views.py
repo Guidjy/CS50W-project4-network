@@ -38,15 +38,17 @@ def logout_view(request):
     return JsonResponse({'message': 'Successfully logged out', 'status': 200}, status=200)
 
 
+@csrf_exempt
 def register(request):
     if request.method == "POST":
         user_input = json.loads(request.body) 
-        username = user_input.username
-        email = user_input.email
+        print(user_input)
+        username = user_input['username']
+        email = user_input['email']
 
         # Ensure password matches confirmation
-        password = user_input.password
-        confirmation = user_input.confirmation
+        password = user_input['password']
+        confirmation = user_input['confirmation']
         if password != confirmation:
             return JsonResponse({'message': 'Passwords must match.', 'status': 401}, status=401)
 

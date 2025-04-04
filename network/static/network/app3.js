@@ -59,8 +59,29 @@ function App() {
     })
   }
 
-  function register() {
-    // TODO
+  function register(username, email, password, confirmation) {
+    fetch('/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        username: username,
+        email: email,
+        password: password,
+        confirmation: confirmation
+      })
+    })
+    .then(response => response.json())
+    .then(response => {
+      // checks wether the user was successfully registered or not
+      if (response.status === 200) {
+        login(username, password);
+        setDisplayAlert(false);
+        setDisplayRegisterForm(false);
+      } else {
+        setDisplayAlert(true);
+        setAlertMessage('Failed to register user. Please try again.');
+        setDisplayRegisterForm(true);
+      }
+    })
   }
 
   return (
