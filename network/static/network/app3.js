@@ -1,6 +1,7 @@
 function App() {
   const [username, setUsername] = React.useState(null);
   const [loggedIn, setLoggedIn] = React.useState(false);
+  const [displayLoginForm, setDisplayLoginForm] = React.useState(false);
   const [displayAlert, setDisplayAlert] = React.useState(false);
   const [alertMessage, setAlertMessage] = React.useState('');
 
@@ -47,10 +48,12 @@ function App() {
         setUsername(username);
         setLoggedIn(true);
         setDisplayAlert(false);
+        setDisplayLoginForm(false);
       } else {
         setLoggedIn(false);
         setDisplayAlert(true);
         setAlertMessage(response.message);
+        setDisplayLoginForm(true);
       }
     })
   }
@@ -61,12 +64,12 @@ function App() {
 
   return (
     <div className="flex">
-      <SidebarLeft loggedIn={loggedIn} username={username} onLogout={logout} onLogin={login} />
+      <SidebarLeft loggedIn={loggedIn} username={username} onLogout={logout} onLogin={() => setDisplayLoginForm(true)} />
       {/* this div is here to place the posts div correctly */}
       <div className="w-1/4"></div>
       <div id="posts" className="w-3/4 xl:w-6/12 min-h-screen h-full xl:border-r-2 border-[#023E73]">
         {displayAlert && (<Alert message={alertMessage} />)}
-        {!loggedIn && (<LoginForm onSubmit={login} />)}
+        {displayLoginForm && (<LoginForm onSubmit={login} />)}
       </div>
     </div>
   );
