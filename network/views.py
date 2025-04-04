@@ -25,9 +25,9 @@ def login_view(request):
         # Check if authentication successful
         if user is not None:
             login(request, user)
-            return JsonResponse({'message': 'user successfully logged in', 'status': 200}, status=200);
+            return JsonResponse({'message': 'user successfully logged in', 'status': 200}, status=200)
         else:
-            return JsonResponse({'message': 'Invalid username and/or password.', 'status': 401}, status=401);
+            return JsonResponse({'message': 'Invalid username and/or password.', 'status': 401}, status=401)
 
     else:
         return render(request, "network/login.html")
@@ -40,29 +40,26 @@ def logout_view(request):
 
 def register(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
+        user_input = json.loads(request.body) 
+        username = user_input.username
+        email = user_input.email
 
         # Ensure password matches confirmation
-        password = request.POST["password"]
-        confirmation = request.POST["confirmation"]
+        password = user_input.password
+        confirmation = user_input.confirmation
         if password != confirmation:
-            return render(request, "network/register.html", {
-                "message": "Passwords must match."
-            })
+            return JsonResponse({'message': 'Passwords must match.', 'status': 401}, status=401)
 
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
         except IntegrityError:
-            return render(request, "network/register.html", {
-                "message": "Username already taken."
-            })
+            return JsonResponse({'message': 'Username already taken.', 'status': 401}, status=401)
         login(request, user)
-        return HttpResponseRedirect(reverse("index"))
+        return JsonResponse({'message': 'Successfully logged in', 'status': 200}, status=200)
     else:
-        return render(request, "network/register.html")
+        return render(request, "network/index.html")
     
     
 def get_current_user(request):

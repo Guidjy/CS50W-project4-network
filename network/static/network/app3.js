@@ -2,6 +2,7 @@ function App() {
   const [username, setUsername] = React.useState(null);
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [displayLoginForm, setDisplayLoginForm] = React.useState(false);
+  const [displayRegisterForm, setDisplayRegisterForm] = React.useState(false);
   const [displayAlert, setDisplayAlert] = React.useState(false);
   const [alertMessage, setAlertMessage] = React.useState('');
 
@@ -64,12 +65,14 @@ function App() {
 
   return (
     <div className="flex">
-      <SidebarLeft loggedIn={loggedIn} username={username} onLogout={logout} onLogin={() => setDisplayLoginForm(true)} />
+      <SidebarLeft loggedIn={loggedIn} username={username} onLogout={logout} onLogin={() => {setDisplayLoginForm(true); setDisplayRegisterForm(false);}}
+      onRegister={() => {setDisplayLoginForm(false); setDisplayRegisterForm(true);}} />
       {/* this div is here to place the posts div correctly */}
       <div className="w-1/4"></div>
       <div id="posts" className="w-3/4 xl:w-6/12 min-h-screen h-full xl:border-r-2 border-[#023E73]">
         {displayAlert && (<Alert message={alertMessage} />)}
         {displayLoginForm && (<LoginForm onSubmit={login} />)}
+        {displayRegisterForm && (<RegisterForm onSubmit={register} />)}
       </div>
     </div>
   );
@@ -78,7 +81,7 @@ function App() {
 
 function Alert({message}) {
   return (
-    <div class="bg-[#F24B59] border-2 border-[#BF3434] rounded text-center font-bold p-3 m-5">
+    <div class="bg-[#F24B59] border-2 border-[#BF3434] rounded text-center font-bold p-3 mx-5 mt-10">
       {message}
     </div>
   );
@@ -100,7 +103,7 @@ function SidebarItem({ icon, label, onClick }) {
 }
 
 
-function SidebarLeft({loggedIn, username, onLogout, onLogin}) {
+function SidebarLeft({loggedIn, username, onLogout, onLogin, onRegister}) {
   return (
     <section id="sidebar" className="w-1/4 h-screen fixed border-r-2 border-[#023E73] flex justify-end xl:justify-start pt-5 pe-8 xl:ps-5">
       <div className="flex flex-col items-center xl:items-start">
@@ -147,7 +150,7 @@ function SidebarLeft({loggedIn, username, onLogout, onLogin}) {
                 <SidebarItem
                 icon=<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16"><path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/><path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/></svg>
                 label="Register"
-                onClick="" 
+                onClick={onRegister}
                 />
               </>
             )}
@@ -164,16 +167,42 @@ function LoginForm({onSubmit}) {
   const [password, setPassword] = React.useState('');
 
   return (
-    <div className="m-5 py-15 bg-[#1D0259] rounded-lg">
+    <div className="py-15 border-b-2 border-[#023E73]">
       <form class="flex flex-col items-center">
         {/* peep the onChange events in the input fields. The idea is to prevent calling document.querySelector
         which should probably make things easier in bigger forms idk :P */}
-        <input id="login-username-field" class="text-center rounded-md bg-[#060126] mb-7 py-2 w-3/4" type="text" placeholder="Username" autoFocus 
+        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="text" placeholder="Username" autoFocus 
         onChange={(event) => setUsername(event.target.value)}/>
-        <input id="login-password-field" class="text-center rounded-md bg-[#060126] mb-7 py-2 w-3/4" type="password" placeholder="Password" 
+        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="password" placeholder="Password" 
         onChange={(event) => setPassword(event.target.value)}/>
-        <input class="bg-[#0455BF] rounded-md hover:bg-[#3084F2] py-2 w-1/2" type="submit" value="Login"
+        <input class="bg-[#1D0259] rounded-md hover:bg-[#3084F2] py-2 w-1/2" type="submit" value="Login"
         onClick={(event) => {event.preventDefault(); onSubmit?.(username, password); }} />
+      </form>
+    </div>
+  )
+}
+
+
+function RegisterForm({onSubmit}) {
+  const [username, setUsername] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [confirmation, setConfirmation] = React.useState('');
+
+  return (
+    <div className="py-15 border-b-2 border-[#023E73]">
+      <form class="flex flex-col items-center">
+        {/* peep comment on LoginForm if confused about the onChange events */}
+        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="text" placeholder="Username" autoFocus 
+        onChange={(event) => setUsername(event.target.value)}/>
+        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="email" placeholder="Email"
+        onChange={(event) => setEmail(event.target.value)}/>
+        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="password" placeholder="Password" 
+        onChange={(event) => setPassword(event.target.value)}/>
+        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="password" placeholder="Password Confirmation" 
+        onChange={(event) => setConfirmation(event.target.value)}/>
+        <input class="bg-[#1D0259] rounded-md hover:bg-[#3084F2] py-2 w-1/2" type="submit" value="Register"
+        onClick={(event) => {event.preventDefault(); onSubmit?.(username, email, password, confirmation); }} />
       </form>
     </div>
   )
