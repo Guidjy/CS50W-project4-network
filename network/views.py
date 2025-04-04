@@ -63,3 +63,17 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+    
+    
+def get_current_user(request):
+    """
+    returns current user username
+    """
+    if request.user.is_authenticated:
+        is_logged_in = True
+        username = request.user.username
+    else:
+        is_logged_in = False
+        username = None
+    
+    return JsonResponse({'isLoggedIn': is_logged_in, 'username': username}, status=200)
