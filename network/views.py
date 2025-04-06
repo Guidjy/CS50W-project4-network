@@ -30,7 +30,7 @@ def login_view(request):
             return JsonResponse({'message': 'Invalid username and/or password.', 'status': 401}, status=401)
 
     else:
-        return render(request, "network/login.html")
+        return render(request, "network/index.html")
 
 
 def logout_view(request):
@@ -66,7 +66,7 @@ def register(request):
     
 def get_current_user(request):
     """
-    returns current user username
+    returns current user username, if they're logged in
     """
     if request.user.is_authenticated:
         is_logged_in = True
@@ -76,3 +76,10 @@ def get_current_user(request):
         username = None
     
     return JsonResponse({'isLoggedIn': is_logged_in, 'username': username}, status=200)
+
+
+def new_post(request):
+    """
+    Users who are signed in are able to write a new text-based post by filling in text into a text area 
+    and then clicking a button to submit the post.
+    """

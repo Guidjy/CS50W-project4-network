@@ -90,7 +90,7 @@ function App() {
       onRegister={() => {setDisplayLoginForm(false); setDisplayRegisterForm(true);}} />
       {/* this div is here to place the posts div correctly */}
       <div className="w-1/4"></div>
-      <div id="posts" className="w-3/4 xl:w-6/12 min-h-screen h-full xl:border-r-2 border-[#023E73]">
+      <div id="posts" className="w-3/4 xl:w-6/12 min-h-screen h-full xl:border-r-2 border-[#424549]">
         {displayAlert && (<Alert message={alertMessage} />)}
         {displayLoginForm && (<LoginForm onSubmit={login} />)}
         {displayRegisterForm && (<RegisterForm onSubmit={register} />)}
@@ -126,7 +126,7 @@ function SidebarItem({ icon, label, onClick }) {
 
 function SidebarLeft({loggedIn, username, onLogout, onLogin, onRegister}) {
   return (
-    <section id="sidebar" className="w-1/4 h-screen fixed border-r-2 border-[#023E73] flex justify-end xl:justify-start pt-5 pe-8 xl:ps-5">
+    <section id="sidebar" className="w-1/4 h-screen fixed border-r-2 border-[#424549] flex justify-end xl:justify-start pt-5 pe-8 xl:ps-5">
       <div className="flex flex-col items-center xl:items-start">
         {/* Logo */}
         <div className="flex items-center pb-8 ">
@@ -188,15 +188,15 @@ function LoginForm({onSubmit}) {
   const [password, setPassword] = React.useState('');
 
   return (
-    <div className="py-15 border-b-2 border-[#023E73]">
+    <div className="py-15 border-b-2 border-[#424549]">
       <form class="flex flex-col items-center">
         {/* peep the onChange events in the input fields. The idea is to prevent calling document.querySelector
         which should probably make things easier in bigger forms idk :P */}
-        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="text" placeholder="Username" autoFocus 
+        <input class="text-center rounded-md bg-[#424549] mb-7 py-2 w-3/4" type="text" placeholder="Username" autoFocus 
         onChange={(event) => setUsername(event.target.value)}/>
-        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="password" placeholder="Password" 
+        <input class="text-center rounded-md bg-[#424549] mb-7 py-2 w-3/4" type="password" placeholder="Password" 
         onChange={(event) => setPassword(event.target.value)}/>
-        <input class="bg-[#1D0259] rounded-md hover:bg-[#3084F2] py-2 w-1/2" type="submit" value="Login"
+        <input class="bg-[#1DA1F2] rounded-md hover:bg-[#1d8ff2] py-2 w-1/2" type="submit" value="Login"
         onClick={(event) => {event.preventDefault(); onSubmit?.(username, password); }} />
       </form>
     </div>
@@ -211,18 +211,18 @@ function RegisterForm({onSubmit}) {
   const [confirmation, setConfirmation] = React.useState('');
 
   return (
-    <div className="py-15 border-b-2 border-[#023E73]">
+    <div className="py-15 border-b-2 border-[#424549]">
       <form class="flex flex-col items-center">
         {/* peep comment on LoginForm if confused about the onChange events */}
-        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="text" placeholder="Username" autoFocus 
+        <input class="text-center rounded-md bg-[#424549] mb-7 py-2 w-3/4" type="text" placeholder="Username" autoFocus 
         onChange={(event) => setUsername(event.target.value)}/>
-        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="email" placeholder="Email"
+        <input class="text-center rounded-md bg-[#424549] mb-7 py-2 w-3/4" type="email" placeholder="Email"
         onChange={(event) => setEmail(event.target.value)}/>
-        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="password" placeholder="Password" 
+        <input class="text-center rounded-md bg-[#424549] mb-7 py-2 w-3/4" type="password" placeholder="Password" 
         onChange={(event) => setPassword(event.target.value)}/>
-        <input class="text-center rounded-md bg-[#023E73] mb-7 py-2 w-3/4" type="password" placeholder="Password Confirmation" 
+        <input class="text-center rounded-md bg-[#424549] mb-7 py-2 w-3/4" type="password" placeholder="Password Confirmation" 
         onChange={(event) => setConfirmation(event.target.value)}/>
-        <input class="bg-[#1D0259] rounded-md hover:bg-[#3084F2] py-2 w-1/2" type="submit" value="Register"
+        <input class="bg-[#1DA1F2] rounded-md hover:bg-[#1d8ff2] py-2 w-1/2" type="submit" value="Register"
         onClick={(event) => {event.preventDefault(); onSubmit?.(username, email, password, confirmation); }} />
       </form>
     </div>
