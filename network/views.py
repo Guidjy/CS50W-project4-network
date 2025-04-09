@@ -1,12 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ValidationError
 import json
 
-from .models import User
+from .models import User, Post
 
 
 def index(request):
@@ -71,15 +73,40 @@ def get_current_user(request):
     if request.user.is_authenticated:
         is_logged_in = True
         username = request.user.username
+        if request.user.profile_picture:
+            pfp = request.user.profile_picture.url
+        else:
+            pfp = None
     else:
         is_logged_in = False
         username = None
+        pfp = None
     
-    return JsonResponse({'isLoggedIn': is_logged_in, 'username': username}, status=200)
+    return JsonResponse({'isLoggedIn': is_logged_in, 'username': username, 'pfp': pfp}, status=200)
 
 
+@login_required
+@csrf_exempt
 def new_post(request):
     """
     Users who are signed in are able to write a new text-based post by filling in text into a text area 
     and then clicking a button to submit the post.
     """
+    # get user input from response
+    # save user input as new post
+    if request.method == 'POST':
+        user_input = json.loads(request.body)
+        content = user_input['content']
+        image = user_input['image']
+        new_post = Post.objects.create(content=content, image=image)
+        print(new_post)
+        try:
+            new_post.full_clean()
+        except ValidationError:
+            # handle error
+            pass
+        new_post.save()
+        
+    else:
+        return redirect(index)
+    

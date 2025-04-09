@@ -1,5 +1,6 @@
 function App() {
   const [username, setUsername] = React.useState(null);
+  const [pfp, setPfp] = React.useState(null);
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [displayLoginForm, setDisplayLoginForm] = React.useState(false);
   const [displayRegisterForm, setDisplayRegisterForm] = React.useState(false);
@@ -15,6 +16,7 @@ function App() {
       console.log(user);
       if (user.isLoggedIn) {
         setUsername(user.username);
+        setPfp(user.pfp)
         setLoggedIn(true);
       } else {
         setLoggedIn(false);
@@ -57,7 +59,7 @@ function App() {
         setDisplayLoginForm(true);
       }
     })
-  }
+}
 
   function register(username, email, password, confirmation) {
     fetch('/register', {
@@ -94,6 +96,7 @@ function App() {
         {displayAlert && (<Alert message={alertMessage} />)}
         {displayLoginForm && (<LoginForm onSubmit={login} />)}
         {displayRegisterForm && (<RegisterForm onSubmit={register} />)}
+        {loggedIn && (<NewPostForm pfp={pfp} />)}
       </div>
     </div>
   );
@@ -226,6 +229,24 @@ function RegisterForm({onSubmit}) {
         onClick={(event) => {event.preventDefault(); onSubmit?.(username, email, password, confirmation); }} />
       </form>
     </div>
+  )
+}
+
+
+function NewPostForm({pfp}) {
+  return (
+    <>
+      <div className="py-15 border-b-2 border-[#424549]">
+        <form className="flex flex-col items-center">
+          <div id="textarea">
+            <img src={pfp} />
+            <input className="w-full" type="text" minLength="1" maxLength="280" />
+          </div>
+          <input className="w-full bg-[#424549] text-center" type="file" />
+          <input type="submit" />
+        </form>
+      </div>
+    </>
   )
 }
 
