@@ -247,30 +247,22 @@ function NewPostForm({pfp}) {
   }
 
 
-  // gonna have to redo this whole button
+  // gonna have to redo this whole field
   return (
     <>
-      <div className="py-10 border-b-2 border-[#424549]">
-        <form className="flex flex-col items-center">
-          <div className="flex w-full h-32 justify-start items-start " >
-            <div class="flex flex-col items-end w-1/12 ms-4 me-2">
-              <img className="h-20 rounded-full mb-2" src={pfp} />
-              <button id="upload-image" className="text-[#1DA1F2] hover:text-[#1d8ff2] object-bottom">
-                <svg className="fill-current" xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-image-fill" viewBox="0 0 16 16">
-                  <path d="M.002 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-12a2 2 0 0 1-2-2zm1 9v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062zm5-6.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/>
-                </svg>
-              </button>
-            </div>
-            <textarea className="resize-none w-11/12 h-full me-4"  minLength="1" maxLength="280" value={content}
-            onChange={(event) => setContent(event.target.value)} />
-          </div>
-          <div className="flex mt-4">
-            <div className="w-11/12">as</div>
-            <div className="w-1/12">
-              <input className="me-4 p-2 bg-[#1DA1F2] rounded-3xl hover:bg-[#1d8ff2]" type="submit" />
-            </div>
-          </div>
-        </form>
+      <div className="flex flex-col items-end border-b-2 border-[#424549]">
+        <div class="flex w-full p-4">
+          <img src={pfp} className="rounded-full h-18 mb-2 me-4 hidden lg:block" />
+          <textarea placeholder="What's happening?" className="resize-none focus:outline-none w-full h-48 lg:h-32" maxLength="280" />
+        </div>
+        <div className="flex items-center me-8 mb-4">
+          <button className="me-6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-image-fill text-[#1DA1F2] hover:text-[#1d8ff2]" viewBox="0 0 16 16">
+              <path d="M.002 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-12a2 2 0 0 1-2-2zm1 9v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062zm5-6.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/>
+            </svg>
+          </button>
+          <button type="submit" class="px-4 py-2 bg-[#1DA1F2] hover:bg-[#1d8ff2] rounded-3xl">Post</button>
+        </div>
       </div>
     </>
   )
