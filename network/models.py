@@ -34,6 +34,22 @@ class Post(models.Model):
     def __str__(self):
         return f'{self.author} says: {self.content}'
     
+    def to_dict(self):
+        return {
+            'id': self.id,
+            # user is not JSON serializable so we have to return something else
+            'author': {
+                'id': self.author.id,
+                'username': self.author.username,
+                'pfp': self.author.profile_picture.url
+            },
+            'content': self.content,
+            'datetime': self.datetime,
+            'image_url': self.image.url if self.image else None,
+            'likes': self.likes,
+            'reposts': self.reposts
+        }
+    
 
 class Repost(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)

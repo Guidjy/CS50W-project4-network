@@ -6,6 +6,7 @@ function App() {
   const [displayRegisterForm, setDisplayRegisterForm] = React.useState(false);
   const [displayAlert, setDisplayAlert] = React.useState(false);
   const [alertMessage, setAlertMessage] = React.useState('');
+  const [currentPage, setCurrentPage] = React.useState('home');
 
   // updates the client side with user info
   // uuuuuuhh peep https://react.dev/reference/react/useEffect 
@@ -115,6 +116,7 @@ function App() {
         {displayLoginForm && (<LoginForm onSubmit={login} />)}
         {displayRegisterForm && (<RegisterForm onSubmit={register} />)}
         {loggedIn && (<NewPostForm pfp={pfp} onSubmit={newPost} />)}
+        <Feed currentPage={currentPage} />
       </div>
     </div>
   );
@@ -132,10 +134,10 @@ function Alert({message}) {
 
 function SidebarItem({ icon, label, onClick }) {
   return (
-    <li>
+    <li className="bg-[rgba(66,69,73,0)] hover:bg-[rgba(66,69,73,1)] transition-colors duration-200 rounded-full py-2 px-4">
       {/* the question mark after onClick makes it so that it is only called if it exists... React syntax is sum else */}
       <a href=" " onClick={(event) => {event.preventDefault(); onClick?.(); }}>
-        <div className="flex items-center pb-6">
+        <div className="flex items-center">
           {icon}
           <h2 className="text-4xl hidden xl:block ps-4">{label}</h2>
         </div>
@@ -308,6 +310,21 @@ function NewPostForm({pfp, onSubmit}) {
           onClick={(event) => {event.preventDefault(); cleanForm(); onSubmit?.(content, image); }}>Post</button>
         </div>
       </div>
+    </>
+  )
+}
+
+
+function Feed({currentPage}) {
+  const [posts, setPosts] = React.useState(currentPage)
+
+  function loadPosts(currentPage) {
+    console.log(currentPage);
+  }
+
+  return (
+    <>
+      <span>{currentPage}</span>
     </>
   )
 }

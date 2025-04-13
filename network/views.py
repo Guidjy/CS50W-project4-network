@@ -114,3 +114,16 @@ def new_post(request):
     else:
         return redirect(index)
     
+
+def all_posts(request):
+    """
+    The “All Posts” link in the navigation bar takes the user to a page where they can see all posts from all users, 
+    with the most recent posts first. Each post should include the username of the poster, the post content itself, 
+    the date and time at which the post was made, and the number of “likes” the post has
+    """
+    posts = list(Post.objects.order_by('datetime').all().reverse())
+    # converts all of the queried posts into dicts and adds them to a list
+    all_posts = list()
+    for post in posts:
+        all_posts.append(post.to_dict())
+    return JsonResponse({'posts': all_posts})
