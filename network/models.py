@@ -32,7 +32,7 @@ class Post(models.Model):
     reposts = models.IntegerField(default=0)
     
     def __str__(self):
-        return f'{author} says: {content}'
+        return f'{self.author} says: {self.content}'
     
 
 class Repost(models.Model):

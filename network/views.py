@@ -92,20 +92,24 @@ def new_post(request):
     Users who are signed in are able to write a new text-based post by filling in text into a text area 
     and then clicking a button to submit the post.
     """
-    # get user input from response
-    # save user input as new post
     if request.method == 'POST':
-        user_input = json.loads(request.body)
-        content = user_input['content']
-        image = user_input['image']
-        new_post = Post.objects.create(content=content, image=image)
+        # these new methods are being used to handle image uploads
+        # peep newPost on app.js
+        content = request.POST.get('content')
+        image = request.FILES.get('image')
+        new_post = Post.objects.create(
+            author=request.user, 
+            content=content, 
+            image=image
+        )
         print(new_post)
         try:
             new_post.full_clean()
         except ValidationError:
-            # handle error
+            # handle error :p
             pass
         new_post.save()
+        return JsonResponse({'message': 'success'}, status=200)
         
     else:
         return redirect(index)

@@ -85,6 +85,25 @@ function App() {
     })
   }
 
+  function newPost(content, image) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/FormData
+    const formData = new FormData();
+    formData.append('content', content);
+    if (image) {
+      formData.append('image', image);
+    }
+    console.log(formData);
+
+    fetch('/new_post', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(response => {
+      console.log(response);
+    });
+  }
+
   return (
     <div className="flex">
       <SidebarLeft loggedIn={loggedIn} username={username} onLogout={logout} onLogin={() => {setDisplayLoginForm(true); setDisplayRegisterForm(false);}}
@@ -95,7 +114,7 @@ function App() {
         {displayAlert && (<Alert message={alertMessage} />)}
         {displayLoginForm && (<LoginForm onSubmit={login} />)}
         {displayRegisterForm && (<RegisterForm onSubmit={register} />)}
-        {loggedIn && (<NewPostForm pfp={pfp} />)}
+        {loggedIn && (<NewPostForm pfp={pfp} onSubmit={newPost} />)}
       </div>
     </div>
   );
@@ -232,36 +251,61 @@ function RegisterForm({onSubmit}) {
 }
 
 
-function NewPostForm({pfp}) {
+function NewPostForm({pfp, onSubmit}) {
   const [content, setContent] = React.useState('');
   const [image, setImage] = React.useState('');
-  const [displayImageInput, setDisplayImageInput] = React.useState(true);
+  const [imageURL, setImageURL] = React.useState('');
 
-  function handleImageUpload(event) {
-    setImage(event.target.value);
-    if (image === '') {
-      setDisplayImageInput(true);
-    } else {
-      setDisplayImageInput(false);
+  function handleImageDrop(event) {
+    event.preventDefault();
+    // peep: https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/files
+    const file = event.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setImage(file);
+      const imageUrl = URL.createObjectURL(file);
+      setImageURL(imageUrl);
     }
+  }
+
+  function removeImage() {
+    setImage('');
+    setImageURL('');
+  }
+
+  function cleanForm() {
+    if (image != '') {
+      removeImage();
+    }
+    document.querySelector('#post-content').value = '';
+    setContent('');
   }
 
 
   // gonna have to redo this whole field
   return (
     <>
-      <div className="flex flex-col items-end border-b-2 border-[#424549]">
+      <div onDrop={handleImageDrop} id="new-post-section" className="flex flex-col items-end border-b-2 border-[#424549]">
         <div class="flex w-full p-4">
           <img src={pfp} className="rounded-full h-18 mb-2 me-4 hidden lg:block" />
-          <textarea placeholder="What's happening?" className="resize-none focus:outline-none w-full h-48 lg:h-32" maxLength="280" />
+          <textarea id="post-content" placeholder="What's happening?" className="resize-none focus:outline-none w-full h-48 lg:h-32" maxLength="280" 
+          onChange={(event) => setContent(event.target.value)}/>
+        </div>
+        <div className="flex justify-center w-full">
+          {image != '' && (<img id="post-image" src={imageURL} className="h-96 rounded-xl mb-4" />)}
         </div>
         <div className="flex items-center me-8 mb-4">
-          <button className="me-6">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-image-fill text-[#1DA1F2] hover:text-[#1d8ff2]" viewBox="0 0 16 16">
-              <path d="M.002 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-12a2 2 0 0 1-2-2zm1 9v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062zm5-6.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/>
-            </svg>
-          </button>
-          <button type="submit" class="px-4 py-2 bg-[#1DA1F2] hover:bg-[#1d8ff2] rounded-3xl">Post</button>
+          {image != '' && (
+            <button className="me-6 group" onClick={removeImage}>
+              <div className="flex items-center">
+                <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 me-3 bg-[#424549] px-3 py-1 rounded-lg">Remove image</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-image-fill text-[#1DA1F2] hover:text-[#1d8ff2]" viewBox="0 0 16 16">
+                  <path d="M.002 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-12a2 2 0 0 1-2-2zm1 9v1a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062zm5-6.5a1.5 1.5 0 1 0-3 0 1.5 1.5 0 0 0 3 0"/>
+                </svg>
+              </div>
+            </button>      
+          )}
+          <button type="submit" className="px-4 py-2 bg-[#1DA1F2] hover:bg-[#1d8ff2] rounded-3xl" 
+          onClick={(event) => {event.preventDefault(); cleanForm(); onSubmit?.(content, image); }}>Post</button>
         </div>
       </div>
     </>
