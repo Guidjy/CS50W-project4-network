@@ -283,7 +283,6 @@ function NewPostForm({pfp, onSubmit}) {
   }
 
 
-  // gonna have to redo this whole field
   return (
     <>
       <div onDrop={handleImageDrop} id="new-post-section" className="flex flex-col items-end border-b-2 border-[#424549]">
@@ -315,11 +314,62 @@ function NewPostForm({pfp, onSubmit}) {
 }
 
 
-function Post({post}) {
+function Post({postId, pfp, username, content, imageUrl, likes}) {
+  const [liked, setLiked] = React.useState(false);
+  const [likeCount, setLikeCount] = React.useState(likes);
+
+  function handleLike() {
+    if (liked) {
+      setLiked(false);
+      setLikeCount(likeCount - 1);
+    } else {
+      setLiked(true);
+      setLikeCount(likeCount + 1);
+    }
+  }
+
+
   return (
     <>
-      <div>
+    <div key={postId} className="flex flex-col border-b-2 border-[#424549] p-5">
+      {/*username, pfp and datetime posted*/}
+      <div className="flex mb-2">
+        <img src={pfp} className="rounded-full h-16 me-2" />
+        <p className="text-xl">{username}</p>
       </div>
+      {/*content*/}
+      <div className="flex flex-col mb-2">
+        <p>{content}</p>
+      </div>
+      {/*image and likes*/}
+      <div className="flex justify-center">
+        <div className="flex flex-col items-end">
+          {imageUrl && imageUrl != '' && (
+            <img src={imageUrl} width="480" className="rounded-lg mb-2" />
+          )}
+          {!liked && (
+            <div className="flex items-center">
+              <span className="me-1">{likeCount}</span>
+              <button onClick={handleLike}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                  <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
+                </svg>
+              </button>
+            </div>
+          )}
+          {liked && (
+            <div className="flex items-center">
+              <span className="me-1">{likeCount}</span>
+              <button onClick={handleLike}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314"/>
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
     </>
   )
 }
@@ -342,29 +392,16 @@ function Feed({ currentPage }) {
 
   return (
     <>
-      <span>{currentPage}</span>
-      <ul>
-        {posts.length > 0 && posts.map((post) => (
-          <div key={post.id}>
-            {/*username, pfp and datetime posted*/}
-            <div>
-              <p>{post.author.username}</p>
-              <img src={post.author.pfp} />
-            </div>
-            {/*content and image */}
-            <div>
-              <p>{post.content}</p>
-              {post.image_url && post.image_url != '' && (
-                <img src={post.image_url} />
-              )}
-            </div>
-            {/* likes */}
-            <div>
-              <span>{post.likes}</span>
-            </div>
-          </div>
-        ))}
-      </ul>
+      {posts.length > 0 && posts.map((post) => (
+        <Post 
+        postId={post.id} 
+        pfp={post.author.pfp} 
+        username={post.author.username}
+        content={post.content}
+        imageUrl={post.image_url}
+        likes={post.likes}
+        />
+      ))}
     </>
   );
 }
