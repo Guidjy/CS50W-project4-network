@@ -315,19 +315,60 @@ function NewPostForm({pfp, onSubmit}) {
 }
 
 
-function Feed({currentPage}) {
-  const [posts, setPosts] = React.useState(currentPage)
+function Post({post}) {
+  return (
+    <>
+      <div>
+      </div>
+    </>
+  )
+}
 
-  function loadPosts(currentPage) {
-    console.log(currentPage);
-  }
+
+function Feed({ currentPage }) {
+  const [posts, setPosts] = React.useState([]);
+
+  React.useEffect(() => {
+    if (currentPage === 'home') {
+      fetch('/all_posts')
+        .then(response => response.json())
+        .then(data => {
+          console.log(data.posts);
+          setPosts(data.posts);
+        });
+    }
+  // reruns when currentPage is updated
+  }, [currentPage]);
 
   return (
     <>
       <span>{currentPage}</span>
+      <ul>
+        {posts.length > 0 && posts.map((post) => (
+          <div key={post.id}>
+            {/*username, pfp and datetime posted*/}
+            <div>
+              <p>{post.author.username}</p>
+              <img src={post.author.pfp} />
+            </div>
+            {/*content and image */}
+            <div>
+              <p>{post.content}</p>
+              {post.image_url && post.image_url != '' && (
+                <img src={post.image_url} />
+              )}
+            </div>
+            {/* likes */}
+            <div>
+              <span>{post.likes}</span>
+            </div>
+          </div>
+        ))}
+      </ul>
     </>
-  )
+  );
 }
+
 
 
 ReactDOM.render(<App />, document.querySelector('#app'));
