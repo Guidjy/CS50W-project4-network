@@ -127,3 +127,32 @@ def all_posts(request):
     for post in posts:
         all_posts.append(post.to_dict())
     return JsonResponse({'posts': all_posts})
+
+
+def profile_page(request, username):
+    """
+    Clicking on a username should load that user's profile page. This page:
+    > Displays the number of followers the user has, as well as the number of people that the user follows.
+    > Display all of the posts for that user, in reverse chronological order.
+    > For any other user who is signed in, this page should also display a “Follow” or “Unfollow” button 
+      that will let the current user toggle whether or not they are following this user’s posts. 
+    """
+    
+    # gets the data of the profile the user wants to see
+    target_user = User.objects.get(username=username)
+    target_user = target_user.to_dict()
+    
+    # queries the database for all of the posts of that user
+    posts = list(Post.objects.order_by('datetime').filter(author=target_user['id']).reverse())
+    user_posts = []
+    for post in posts:
+        user_posts.append(post.to_dict())
+
+    # gets current user
+    currrent_user = request.user
+    # checks if it's the same as the target user
+    user_owns_profile = False
+    if currrent_user.username == target_user['username']:
+        user_owns_profile = True
+    
+    return JsonResponse({'targetUser': target_user, 'userOwnsProfile': user_owns_profile, 'posts': user_posts})

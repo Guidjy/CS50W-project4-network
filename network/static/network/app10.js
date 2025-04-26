@@ -105,10 +105,15 @@ function App() {
     });
   }
 
+  function handlePageChange(page) {
+    setCurrentPage(page);
+  }
+  
+
   return (
     <div className="flex">
       <SidebarLeft loggedIn={loggedIn} username={username} onLogout={logout} onLogin={() => {setDisplayLoginForm(true); setDisplayRegisterForm(false);}}
-      onRegister={() => {setDisplayLoginForm(false); setDisplayRegisterForm(true);}} />
+      onRegister={() => {setDisplayLoginForm(false); setDisplayRegisterForm(true);}} onPageChange={handlePageChange} />
       {/* this div is here to place the posts div correctly */}
       <div className="w-1/4"></div>
       <div id="posts" className="w-3/4 xl:w-6/12 min-h-screen h-full xl:border-r-2 border-[#424549]">
@@ -116,7 +121,7 @@ function App() {
         {displayLoginForm && (<LoginForm onSubmit={login} />)}
         {displayRegisterForm && (<RegisterForm onSubmit={register} />)}
         {loggedIn && (<NewPostForm pfp={pfp} onSubmit={newPost} />)}
-        <Feed currentPage={currentPage} />
+        <Feed currentPage={currentPage} currentUser={username} onPageChange={handlePageChange} />
       </div>
     </div>
   );
@@ -147,7 +152,7 @@ function SidebarItem({ icon, label, onClick }) {
 }
 
 
-function SidebarLeft({loggedIn, username, onLogout, onLogin, onRegister}) {
+function SidebarLeft({loggedIn, username, onLogout, onLogin, onRegister, onPageChange}) {
   return (
     <section id="sidebar" className="w-1/4 h-screen fixed border-r-2 border-[#424549] flex justify-end xl:justify-start pt-5 pe-8 xl:ps-5">
       <div className="flex flex-col items-center xl:items-start">
@@ -162,13 +167,13 @@ function SidebarLeft({loggedIn, username, onLogout, onLogin, onRegister}) {
             {loggedIn && (<SidebarItem
             icon = <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
             label = {username} 
-            onCLick = ""
+            onClick = {() => onPageChange('profile')}
             /> )}
             {/* Home */}
             <SidebarItem
             icon = <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-house-door-fill" viewBox="0 0 16 16"><path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5"/></svg>
             label="Home" 
-            onClick=''
+            onClick = {() => onPageChange('home')}
             />
             {/* Following */}
             {loggedIn && (<SidebarItem
@@ -314,7 +319,7 @@ function NewPostForm({pfp, onSubmit}) {
 }
 
 
-function Post({postId, pfp, username, content, imageUrl, likes}) {
+function Post({key, postId, pfp, username, content, imageUrl, likes, onUsernameClick}) {
   const [liked, setLiked] = React.useState(false);
   const [likeCount, setLikeCount] = React.useState(likes);
 
@@ -331,11 +336,11 @@ function Post({postId, pfp, username, content, imageUrl, likes}) {
 
   return (
     <>
-    <div key={postId} className="flex flex-col border-b-2 border-[#424549] p-5">
+    <div key={key} className="flex flex-col border-b-2 border-[#424549] p-5">
       {/*username, pfp and datetime posted*/}
       <div className="flex mb-2">
         <img src={pfp} className="rounded-full h-16 me-2" />
-        <p className="text-xl">{username}</p>
+        <a href="" onClick={(event) => {event.preventDefault(); onUsernameClick(username);}} className="text-xl">{username}</a>
       </div>
       {/*content*/}
       <div className="flex flex-col mb-2">
@@ -375,28 +380,54 @@ function Post({postId, pfp, username, content, imageUrl, likes}) {
 }
 
 
-function Feed({ currentPage }) {
+function Feed({ currentPage, currentUser, onPageChange }) {
   const [posts, setPosts] = React.useState([]);
+  const [profileClicked, setProfileClicked] = React.useState(currentUser);
 
   React.useEffect(() => {
-    if (currentPage === 'home') {
-      fetch('/all_posts')
+    switch (currentPage) {
+      case 'home':
+        fetch('/all_posts')
+          .then(response => response.json())
+          .then(data => {
+            console.log(data.posts);
+            setPosts(data.posts);
+          });
+        break;
+      
+      case 'profile':
+        fetch(`/profile_page/${profileClicked}`)
         .then(response => response.json())
         .then(data => {
-          console.log(data.posts);
+          console.log(data);
           setPosts(data.posts);
-        });
-    }
+        })
+      
+      default:
+        break;
+    }    
   // reruns when currentPage is updated
   }, [currentPage]);
+
+  React.useEffect(() => {
+    setProfileClicked(currentUser);
+  }, [currentUser]);
+
+  function handleProfileClick(username) {
+    console.log('0-0');
+    setProfileClicked(username);
+    onPageChange('profile');
+  }
 
   return (
     <>
       {posts.length > 0 && posts.map((post) => (
         <Post 
+        key={posts.id}
         postId={post.id} 
         pfp={post.author.pfp} 
         username={post.author.username}
+        onUsernameClick={handleProfileClick}
         content={post.content}
         imageUrl={post.image_url}
         likes={post.likes}

@@ -12,6 +12,15 @@ class User(AbstractUser):
     
     def __str__(self):
         return self.username
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'follower_count': self.follower_count,
+            'following_count': self.following_count,
+            'profile_picture': self.profile_picture.url,
+        }
 
 
 # peep this stack overflow question https://stackoverflow.com/questions/50731311/is-a-follower-following-table-a-many-to-many-relationship
