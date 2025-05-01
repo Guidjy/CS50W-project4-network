@@ -463,17 +463,30 @@ function Feed({ currentPage, currentUser, onPageChange }) {
 }
 
 
-function UserProfileHeader({ username, pfp, banner, followerCount, followingCount, currentUser, userOwnsProfile }) {
+function UserProfileHeader({ username, pfp, banner, currentUser, userOwnsProfile }) {
   const [following, setFollowing] = React.useState(false);
+  const [userData, setUserData] = React.useState({followerCount: null, followingCount: null});
 
    React.useEffect(() => {
     // ts name variables 💔
+    // checks wether or not the current active user follows the user who owns this profile
     fetch(`is_following/${currentUser}/${username}`)
     .then(response => response.json())
     .then(isFollowing => {
       // console.log(isFollowing)
       setFollowing(isFollowing.isFollowing);
     });
+
+    // gets data about the user who owns this profile
+    fetch(`get_user_data/${username}`)
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      setUserData({
+        followerCount: data.user.follower_count,
+        followingCount: data.user.following_count
+      });
+    })
   }, [following]);
 
   function handleFollow() {
@@ -516,7 +529,7 @@ function UserProfileHeader({ username, pfp, banner, followerCount, followingCoun
         <div className="mt-16 px-6 mb-2 flex items-center">
           <div className="w-1/3">
             <h1 className="text-white text-xl font-bold">{username}</h1>
-            <p className="text-gray-400">{followerCount} followers - {followingCount} following</p>
+            <p className="text-gray-400">{userData.followerCount} followers - {userData.followingCount} following</p>
           </div>
           <div className="flex w-2/3 justify-end">
             {/*0-0: condition ? expressionIfTrue : expressionIfFalse 

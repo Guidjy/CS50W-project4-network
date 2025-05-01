@@ -85,6 +85,15 @@ def get_current_user(request):
     return JsonResponse({'isLoggedIn': is_logged_in, 'username': username, 'pfp': pfp}, status=200)
 
 
+def get_user_data(request, user):
+    """
+    returns the follower and following count of a user
+    """
+    user = User.objects.get(username=user)
+    user = user.to_dict()
+    return JsonResponse({'user': user})
+
+
 @login_required
 @csrf_exempt
 def new_post(request):

@@ -10,6 +10,7 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
     path('get_current_user', views.get_current_user, name='get_current_user'),
+    path('get_user_data/<str:user>', views.get_user_data, name='get_user_data'),
     path('is_following/<str:user1>/<str:user2>', views.is_following, name='is_following'),
     path('new_post', views.new_post, name='new_post'),
     path('all_posts', views.all_posts, name='all_posts'),
