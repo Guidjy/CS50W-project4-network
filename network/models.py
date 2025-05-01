@@ -30,7 +30,7 @@ class Following(models.Model):
     follower = models.ForeignKey(User, related_name='target_users', on_delete=models.CASCADE) 
     
     def __str__(self):
-        return f'{target_user} is followed by {follower}'
+        return f'{self.target_user} is followed by {self.follower}'
 
 
 class Post(models.Model):

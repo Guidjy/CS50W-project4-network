@@ -393,6 +393,7 @@ function Feed({ currentPage, currentUser, onPageChange }) {
   const [posts, setPosts] = React.useState([]);
   const [profileClicked, setProfileClicked] = React.useState(currentUser);
   const [targetUser, setTargetUser] = React.useState(null);
+  const [userOwnsProfile, setUserOwnsProfile] = React.useState(false);
 
   React.useEffect(() => {
     switch (currentPage) {
@@ -412,6 +413,7 @@ function Feed({ currentPage, currentUser, onPageChange }) {
         .then(data => {
           console.log(data);
           setTargetUser(data.targetUser);
+          setUserOwnsProfile(data.userOwnsProfile);
           setPosts(data.posts);
         })
       
@@ -440,6 +442,8 @@ function Feed({ currentPage, currentUser, onPageChange }) {
         username={targetUser.username}
         pfp={targetUser.profile_picture}
         banner={targetUser.banner_picture}
+        currentUser={currentUser}
+        userOwnsProfile={userOwnsProfile}
         />
       )}
       {posts.length > 0 && posts.map((post) => (
@@ -459,7 +463,38 @@ function Feed({ currentPage, currentUser, onPageChange }) {
 }
 
 
-function UserProfileHeader({ username, pfp, banner, followerCount, followingCount }) {
+function UserProfileHeader({ username, pfp, banner, followerCount, followingCount, currentUser, userOwnsProfile }) {
+  const [following, setFollowing] = React.useState(false);
+
+   React.useEffect(() => {
+    // ts name variables 💔
+    fetch(`is_following/${currentUser}/${username}`)
+    .then(response => response.json())
+    .then(isFollowing => {
+      // console.log(isFollowing)
+      setFollowing(isFollowing.isFollowing);
+    });
+  }, [following]);
+
+  function handleFollow() {
+    if (following) {
+      fetch(`unfollow/${username}/${currentUser}`)
+      .then(response => response.json)
+      .then(success => {
+        if (success) {
+          setFollowing(false);
+        }
+      });
+    } else {
+      fetch(`follow/${username}/${currentUser}`)
+      .then(response => response.json)
+      .then(success => {
+        if (success) {
+          setFollowing(true);
+        }
+      });
+    }
+  }
 
   
   // a lot of new css stuff here so pay atention 0-0
@@ -470,17 +505,30 @@ function UserProfileHeader({ username, pfp, banner, followerCount, followingCoun
       <div className="border-b-2 border-[#424549] flex flex-col relative">
         {/* object cover makes sure that the image completetly fills its container, 
         preserving its aspect ratio by cropping the image instead of stretching it */}
-        <img src={banner} className="w-full h-60 object-cover" />
+        <img src={banner} className="w-full h-60 object-cover border-b-2 border-[#424549]" />
 
         {/* "absolute" positions the image absolutely inside the nearest "relative" element as we have seen.
         "bottom-[58px]" pushes the image 58px from the bottom of the parent container. 
         "left-6" positions the image 24px from the left of the parent container.
         "z-10" places trhe image above elements with a lower z-index, placing the pfp above the banner*/}
-        <img src={pfp} className="absolute w-32 h-32 rounded-full border-4 border-black bottom-[58px] left-6 z-10" alt="pfp" />
+        <img src={pfp} className="absolute w-32 h-32 rounded-full border-4 border-[#424549] bottom-[58px] left-6 z-10" alt="pfp" />
 
-        <div className="mt-16 px-6">
-          <h1 className="text-white text-xl font-bold">{username}</h1>
-          <p className="text-gray-400">{followerCount} followers - {followingCount} following</p>
+        <div className="mt-16 px-6 mb-2 flex items-center">
+          <div className="w-1/3">
+            <h1 className="text-white text-xl font-bold">{username}</h1>
+            <p className="text-gray-400">{followerCount} followers - {followingCount} following</p>
+          </div>
+          <div className="flex w-2/3 justify-end">
+            {/*0-0: condition ? expressionIfTrue : expressionIfFalse 
+            I thik I used this earlier idk, peep https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_operator*/}
+            {!userOwnsProfile ? (
+              following ? (
+                <button onClick={handleFollow} className="py-2 px-6 rounded-3xl bg-[#424549] hover:bg-[#F24B59]">Unfollow</button>
+              ) : (
+                <button onClick={handleFollow} className="py-2 px-6 rounded-3xl bg-[#1DA1F2] hover:bg-[#1d8ff2]">Follow</button>
+              )
+            ) : null} {/* show nothing if user does infact own the profile */}
+          </div>
         </div>
       </div>
     </>

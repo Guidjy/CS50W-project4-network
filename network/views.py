@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
 import json
 
-from .models import User, Post
+from .models import User, Post, Following
 
 
 def index(request):
@@ -156,3 +156,71 @@ def profile_page(request, username):
         user_owns_profile = True
     
     return JsonResponse({'targetUser': target_user, 'userOwnsProfile': user_owns_profile, 'posts': user_posts})
+
+
+def is_following(request, user1, user2):
+    """
+    returns wether user1 is following user2
+    """
+    user1 = User.objects.get(username=user1)
+    user2 = User.objects.get(username=user2)
+    is_following = Following.objects.filter(target_user=user2, follower=user1)
+    
+    if is_following:
+        is_following = True
+    else:
+        is_following = False
+    
+    return JsonResponse({'isFollowing': is_following})
+
+
+def follow(request, target_user, follower):
+    """
+    makes follower follow target_user
+    """
+    
+    # creates a new following instance
+    target_user = User.objects.get(username=target_user)
+    follower = User.objects.get(username=follower)
+    follow_instance = Following.objects.create(target_user=target_user, follower=follower)
+    
+    # validates and saves that instance - they call me linus torvalds
+    try:
+        follow_instance.full_clean()
+    except ValidationError:
+        success = False
+    else:
+        follow_instance.save()  
+        success = True
+        target_user.follower_count += 1
+        target_user.save()
+        follower.following_count += 1
+        follower.save()
+        print(f'target_user: {target_user} follower; {follower}')
+    finally:
+        return JsonResponse({'success': success})
+    
+
+def unfollow(request, target_user, follower):
+    """
+    makes follower unfollow target_user
+    """
+    
+    # gets the follow instance of target_user and follower
+    target_user = User.objects.get(username=target_user)
+    follower = User.objects.get(username=follower)
+    follow_instance = Following.objects.filter(target_user=target_user, follower=follower)
+    print(follow_instance)
+    print(f'target_user: {target_user} follower; {follower}')
+    
+    # deletes that instance if it exists
+    if follow_instance:
+        follow_instance.delete()
+        target_user.follower_count -= 1
+        target_user.save()
+        follower.following_count -= 1
+        follower.save()
+        return JsonResponse({'success': True})
+    else:
+        print('nun')
+        return JsonResponse({'success': False})
