@@ -20,6 +20,7 @@ class User(AbstractUser):
             'follower_count': self.follower_count,
             'following_count': self.following_count,
             'profile_picture': self.profile_picture.url,
+            'banner_picture': self.banner_picture.url,
         }
 
 

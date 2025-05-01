@@ -2,6 +2,7 @@ function App() {
   const [username, setUsername] = React.useState(null);
   const [pfp, setPfp] = React.useState(null);
   const [loggedIn, setLoggedIn] = React.useState(false);
+  const [displayNewPostForm, setDisplayNewPostForm] = React.useState(true);
   const [displayLoginForm, setDisplayLoginForm] = React.useState(false);
   const [displayRegisterForm, setDisplayRegisterForm] = React.useState(false);
   const [displayAlert, setDisplayAlert] = React.useState(false);
@@ -107,6 +108,11 @@ function App() {
 
   function handlePageChange(page) {
     setCurrentPage(page);
+    if (page === 'profile') {
+      setDisplayNewPostForm(false);
+    } else {
+      setDisplayNewPostForm(true);
+    }
   }
   
 
@@ -120,7 +126,7 @@ function App() {
         {displayAlert && (<Alert message={alertMessage} />)}
         {displayLoginForm && (<LoginForm onSubmit={login} />)}
         {displayRegisterForm && (<RegisterForm onSubmit={register} />)}
-        {loggedIn && (<NewPostForm pfp={pfp} onSubmit={newPost} />)}
+        {loggedIn && displayNewPostForm && (<NewPostForm pfp={pfp} onSubmit={newPost} />)}
         <Feed currentPage={currentPage} currentUser={username} onPageChange={handlePageChange} />
       </div>
     </div>
@@ -352,6 +358,9 @@ function Post({key, postId, pfp, username, content, imageUrl, likes, onUsernameC
           {imageUrl && imageUrl != '' && (
             <img src={imageUrl} width="480" className="rounded-lg mb-2" />
           )}
+          {!imageUrl && (
+            <div className="w-96 mb-2 xl:me-24"></div>
+          )}
           {!liked && (
             <div className="flex items-center">
               <span className="me-1">{likeCount}</span>
@@ -383,6 +392,7 @@ function Post({key, postId, pfp, username, content, imageUrl, likes, onUsernameC
 function Feed({ currentPage, currentUser, onPageChange }) {
   const [posts, setPosts] = React.useState([]);
   const [profileClicked, setProfileClicked] = React.useState(currentUser);
+  const [targetUser, setTargetUser] = React.useState(null);
 
   React.useEffect(() => {
     switch (currentPage) {
@@ -391,6 +401,7 @@ function Feed({ currentPage, currentUser, onPageChange }) {
           .then(response => response.json())
           .then(data => {
             console.log(data.posts);
+            setTargetUser(null);
             setPosts(data.posts);
           });
         break;
@@ -400,6 +411,7 @@ function Feed({ currentPage, currentUser, onPageChange }) {
         .then(response => response.json())
         .then(data => {
           console.log(data);
+          setTargetUser(data.targetUser);
           setPosts(data.posts);
         })
       
@@ -421,6 +433,15 @@ function Feed({ currentPage, currentUser, onPageChange }) {
 
   return (
     <>
+      {targetUser && (
+        <UserProfileHeader
+        followerCount={targetUser.followerCount}
+        followingCount={targetUser.followingCount}
+        username={targetUser.username}
+        pfp={targetUser.profile_picture}
+        banner={targetUser.banner_picture}
+        />
+      )}
       {posts.length > 0 && posts.map((post) => (
         <Post 
         key={posts.id}
@@ -433,6 +454,35 @@ function Feed({ currentPage, currentUser, onPageChange }) {
         likes={post.likes}
         />
       ))}
+    </>
+  );
+}
+
+
+function UserProfileHeader({ username, pfp, banner, followerCount, followingCount }) {
+
+  
+  // a lot of new css stuff here so pay atention 0-0
+  return (
+    <>
+      {/* the class "relative" sets the positioning context for any ABSOLUTELY positioned child elements of this div 
+      this allows the profile picture to be positioned relative to this container*/}
+      <div className="border-b-2 border-[#424549] flex flex-col relative">
+        {/* object cover makes sure that the image completetly fills its container, 
+        preserving its aspect ratio by cropping the image instead of stretching it */}
+        <img src={banner} className="w-full h-60 object-cover" />
+
+        {/* "absolute" positions the image absolutely inside the nearest "relative" element as we have seen.
+        "bottom-[58px]" pushes the image 58px from the bottom of the parent container. 
+        "left-6" positions the image 24px from the left of the parent container.
+        "z-10" places trhe image above elements with a lower z-index, placing the pfp above the banner*/}
+        <img src={pfp} className="absolute w-32 h-32 rounded-full border-4 border-black bottom-[58px] left-6 z-10" alt="pfp" />
+
+        <div className="mt-16 px-6">
+          <h1 className="text-white text-xl font-bold">{username}</h1>
+          <p className="text-gray-400">{followerCount} followers - {followingCount} following</p>
+        </div>
+      </div>
     </>
   );
 }
