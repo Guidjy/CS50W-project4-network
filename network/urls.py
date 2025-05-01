@@ -17,6 +17,7 @@ urlpatterns = [
     path('profile_page/<str:username>', views.profile_page, name='profile_page'),
     path('follow/<str:target_user>/<str:follower>', views.follow, name='follow'),
     path('unfollow/<str:target_user>/<str:follower>', views.unfollow, name='unfollow'),
+    path('following', views.following, name='following'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # this last line is required to serve user-uploaded media files in development (DEBUG = True)
 # 0-0: peep MEDIA_URL and MEDIA_ROOT in settings.py

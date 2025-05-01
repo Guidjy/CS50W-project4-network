@@ -233,3 +233,27 @@ def unfollow(request, target_user, follower):
     else:
         print('nun')
         return JsonResponse({'success': False})
+
+
+# this view has some interesting notes on querying which may be worth revisiting later
+@login_required
+def following(request):
+    """
+    takes the user to a page where they see all posts made by users that the current user follows
+    """
+    
+    # queries the db for all of the users that the current user follows
+    # 0-0: .values_list is used to extract only the values from a queryset, instead of full model instances
+    #      This returns a list of tuples, so we add flat=True to just simply get a list.
+    #      In this case, we're getting a list of user ids.
+    following_users = list(Following.objects.filter(follower=request.user).values_list('target_user', flat=True))
+    
+    # gets all of the posts made by the previously queried users
+    # 0-0: Even more new django query filter syntax: author__in basically gives us
+    # all Post objects where the author is in the list following_users
+    posts = list(Post.objects.filter(author__in=following_users).order_by('datetime').reverse())
+    for i in range(len(posts)):
+        posts[i] = posts[i].to_dict()
+    
+    return JsonResponse({'posts': posts})
+    
