@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 import json
 
-from .models import User, Post, Following
+from .models import User, Post, Following, Like
 
 
 def index(request):
@@ -135,7 +135,14 @@ def all_posts(request):
     # converts all of the queried posts into dicts and adds them to a list
     all_posts = list()
     for post in posts:
-        all_posts.append(post.to_dict())
+        # checks if this post has been liked by the current user
+        if user_has_liked(request.user, post):
+            has_liked = True
+        else:
+            has_liked = False
+        parsed = post.to_dict()
+        parsed['has_liked'] = has_liked
+        all_posts.append(parsed)
     
     # splits the list into pages of 10 posts
     p = Paginator(all_posts, 10)
@@ -335,11 +342,30 @@ def like_post(request, post_id):
             liked = False
             
         # likes or unlikes the post
+        user = request.user
         if liked:
             post.likes -= 1
+            post.save()
+            like_instance = Like.objects.get(post=post, liker=user)
+            like_instance.delete()
+            return JsonResponse({'message': 'post sucessfully unliked'})
+            
+            
         else:
-            post.likes += 1
-        post.save()
+            like_instance = Like.objects.create(post=post, liker=user)
+            try:
+                like_instance.full_clean()
+            except ValidationError:
+                success = False
+            else:
+                success = True
+                like_instance.save()
+                post.likes += 1
+                post.save()
+            finally:
+                return JsonResponse({'message': 'post sucessfully liked'})
+                
+                
         
         return JsonResponse({'message': 'post successfully liked/unliked', 'post': post.to_dict()})
         
@@ -347,5 +373,13 @@ def like_post(request, post_id):
     else:
         return render(request, "network/index.html")  
     
-    
+
+def user_has_liked(user, post):
+    """
+    returns true if user has liked post
+    """
+    like_instance = Like.objects.filter(post=post, liker=user)
+    if like_instance:
+        return True
+    return False
 

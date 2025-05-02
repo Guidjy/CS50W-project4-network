@@ -327,8 +327,8 @@ function NewPostForm({pfp, onSubmit}) {
 }
 
 
-function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onUsernameClick, date, time, editPost}) {
-  const [liked, setLiked] = React.useState(false);
+function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onUsernameClick, date, time, editPost, hasLiked}) {
+  const [liked, setLiked] = React.useState(hasLiked);
   const [likeCount, setLikeCount] = React.useState(likes);
   const [editingPost, setEditingPost] = React.useState(false);
   const [postHasBeenEdited, setPostHasBeenEdited] = React.useState(false);
@@ -539,6 +539,7 @@ function Feed({ currentPage, currentUser, onPageChange, newPostMade }) {
         fetch('/all_posts')
           .then(response => response.json())
           .then(data => {
+            console.log(data);
             setTargetUser(null);
             setPaginationHasPrevious(data.pages[paginationNumber].hasPrevious);
             setPaginationHasNext(data.pages[paginationNumber].hasNext);
@@ -602,6 +603,7 @@ function Feed({ currentPage, currentUser, onPageChange, newPostMade }) {
         likes={post.likes}
         date={post.datetime.slice(0, 10).replace(/-/g, '/')}
         time={post.datetime.slice(11, 16)}
+        hasLiked={post.has_liked}
         />
       ))}
       <div className="flex justify-center w-full py-4">

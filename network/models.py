@@ -57,9 +57,16 @@ class Post(models.Model):
             'datetime': self.datetime,
             'image_url': self.image.url if self.image else None,
             'likes': self.likes,
-            'reposts': self.reposts
+            'has_liked': False,
+            'reposts': self.reposts,
         }
+
+class Like(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    liker = models.ForeignKey(User, on_delete=models.CASCADE)
     
+    def __str__(self):
+        return f'{self.liker} liked \"{self.post}\"'
 
 class Repost(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
