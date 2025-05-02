@@ -342,6 +342,15 @@ function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onU
       setLiked(true);
       setLikeCount(likeCount + 1);
     }
+    fetch(`like_post/${postId}`, {
+      method: 'PATCH',
+      body: liked
+    })
+    // don't even need this part but imma leave it here for debbuging's sake
+    .then(response => response.json())
+    .then(message => {
+      console.log(message.message);
+    })
   }
 
   function enablePostEdit() {

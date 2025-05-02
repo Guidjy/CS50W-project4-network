@@ -298,6 +298,9 @@ def following(request):
 
 @csrf_exempt
 def edit_post(request, post_id):
+    """
+    Users should be able to click an “Edit” button or link on any of their own posts to edit that post.
+    """
     # I've never used this bih before 0-0
     if request.method == 'PATCH':
         # gets new post content
@@ -309,6 +312,36 @@ def edit_post(request, post_id):
         post.save()
         
         return JsonResponse({'message': 'post edited successfuly', 'post': post.to_dict()})
+        
+    
+    else:
+        return render(request, "network/index.html")  
+
+
+@login_required
+@csrf_exempt
+def like_post(request, post_id):
+    """
+    Users should be able to click a button or link on any post to toggle whether or not they “like” that post.
+    """
+    if request.method == 'PATCH':
+        # gets the post and checks if it's been liked or not
+        post = Post.objects.get(id=post_id)
+        liked = str(request.body)
+        liked = liked[2 : len(liked) - 1].capitalize()
+        if liked == 'True':
+            liked = True
+        else:
+            liked = False
+            
+        # likes or unlikes the post
+        if liked:
+            post.likes -= 1
+        else:
+            post.likes += 1
+        post.save()
+        
+        return JsonResponse({'message': 'post successfully liked/unliked', 'post': post.to_dict()})
         
     
     else:
