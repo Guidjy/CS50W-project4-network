@@ -327,9 +327,10 @@ function NewPostForm({pfp, onSubmit}) {
 }
 
 
-function Post({key, postId, pfp, username, content, imageUrl, likes, onUsernameClick, date, time}) {
+function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onUsernameClick, date, time}) {
   const [liked, setLiked] = React.useState(false);
   const [likeCount, setLikeCount] = React.useState(likes);
+  const [editingPost, setEditingPost] = React.useState(false);
 
   function handleLike() {
     if (liked) {
@@ -341,24 +342,37 @@ function Post({key, postId, pfp, username, content, imageUrl, likes, onUsernameC
     }
   }
 
+  function editPost() {
+    if (editingPost) {
+      setEditingPost(false);
+    } else {
+      setEditingPost(true);
+    }
+  }
+
 
   return (
     <>
-    <div key={key} className="flex flex-col border-b-2 border-[#424549] p-5">
+    <div key={postId} className="flex flex-col border-b-2 border-[#424549] p-5">
       {/*username, pfp and datetime posted*/}
       <div className="flex mb-2 w-full">
         <div className="flex mb-2 w-1/2 justify-start">
           <img src={pfp} className="rounded-full h-16 me-2" />
           <a href="" onClick={(event) => {event.preventDefault(); onUsernameClick(username);}} className="text-xl">{username}</a>
         </div>
-        <div className="flex mb-2 mt-1 w-1/2 justify-end">
-          <p className="text-gray-400">{date} - {time}</p>
+        <div className="flex flex-col mb-2 mt-1 w-1/2 items-end">
+          <p className="text-gray-400 mb-2">{date} - {time}</p>
+          {currentUser === username && (<button onClick={editPost} className="bg-[#1DA1F2] hover:bg-[#1d8ff2] px-2 rounded-xl">Edit</button>)}
         </div>
       </div>
       {/*content*/}
-      <div className="flex flex-col mb-2">
-        <p>{content}</p>
-      </div>
+      {editingPost ? (
+        <EditPostForm author={username} postId={postId} content={content} />
+      ) : 
+        <div className="flex flex-col mb-2">
+          <p>{content}</p>
+        </div> 
+      }
       {/*image and likes*/}
       <div className="flex justify-center">
         <div className="flex flex-col items-end">
@@ -391,6 +405,20 @@ function Post({key, postId, pfp, username, content, imageUrl, likes, onUsernameC
         </div>
       </div>
     </div>
+    </>
+  )
+}
+
+
+function EditPostForm({author, postId, content}) {
+  const [newContent, setNewContent] = React.useState(content);
+
+  return (
+    <>
+      <div className="w-full">
+        <textarea id="post-content" value={newContent} className="mb-2 bg-[#424549] rounded-xl resize-none focus:outline-none w-full h-48 lg:h-32" maxLength="280"
+        onChange={(event) => setNewContent(event.target.value)} />
+      </div>
     </>
   )
 }
@@ -532,8 +560,8 @@ function Feed({ currentPage, currentUser, onPageChange, newPostMade }) {
         />
       )}
       {posts.length > 0 && posts.map((post) => (
-        <Post 
-        key={posts.id}
+        <Post
+        currentUser={currentUser}
         postId={post.id} 
         pfp={post.author.pfp} 
         username={post.author.username}

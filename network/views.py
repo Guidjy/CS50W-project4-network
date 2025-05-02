@@ -295,3 +295,17 @@ def following(request):
     
     return JsonResponse({'posts': posts, 'pages': pages})
 
+
+@csrf_exempt
+def edit_post(request, post_id):
+    # I've never used this bih before 0-0
+    if request.method == 'GET':
+        post = Post.objects.get(id=id)
+        return JsonResponse({'post': post})
+        
+    
+    else:
+        return render(request, "network/index.html")  
+    
+    
+
