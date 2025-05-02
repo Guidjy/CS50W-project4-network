@@ -8,6 +8,7 @@ function App() {
   const [displayAlert, setDisplayAlert] = React.useState(false);
   const [alertMessage, setAlertMessage] = React.useState('');
   const [currentPage, setCurrentPage] = React.useState('home');
+  const [newPostMade, setNewPostMade] = React.useState(false);
 
   // updates the client side with user info
   // uuuuuuhh peep https://react.dev/reference/react/useEffect 
@@ -102,7 +103,8 @@ function App() {
     })
     .then(response => response.json())
     .then(response => {
-      console.log(response);
+      // "fires a signal" to re-render the posts
+      setNewPostMade(true);
     });
   }
 
@@ -127,7 +129,7 @@ function App() {
         {displayLoginForm && (<LoginForm onSubmit={login} />)}
         {displayRegisterForm && (<RegisterForm onSubmit={register} />)}
         {loggedIn && displayNewPostForm && (<NewPostForm pfp={pfp} onSubmit={newPost} />)}
-        <Feed currentPage={currentPage} currentUser={username} onPageChange={handlePageChange} />
+        <Feed currentPage={currentPage} currentUser={username} onPageChange={handlePageChange} newPostMade={newPostMade} />
       </div>
     </div>
   );
@@ -325,7 +327,7 @@ function NewPostForm({pfp, onSubmit}) {
 }
 
 
-function Post({key, postId, pfp, username, content, imageUrl, likes, onUsernameClick}) {
+function Post({key, postId, pfp, username, content, imageUrl, likes, onUsernameClick, date, time}) {
   const [liked, setLiked] = React.useState(false);
   const [likeCount, setLikeCount] = React.useState(likes);
 
@@ -344,9 +346,14 @@ function Post({key, postId, pfp, username, content, imageUrl, likes, onUsernameC
     <>
     <div key={key} className="flex flex-col border-b-2 border-[#424549] p-5">
       {/*username, pfp and datetime posted*/}
-      <div className="flex mb-2">
-        <img src={pfp} className="rounded-full h-16 me-2" />
-        <a href="" onClick={(event) => {event.preventDefault(); onUsernameClick(username);}} className="text-xl">{username}</a>
+      <div className="flex mb-2 w-full">
+        <div className="flex mb-2 w-1/2 justify-start">
+          <img src={pfp} className="rounded-full h-16 me-2" />
+          <a href="" onClick={(event) => {event.preventDefault(); onUsernameClick(username);}} className="text-xl">{username}</a>
+        </div>
+        <div className="flex mb-2 mt-1 w-1/2 justify-end">
+          <p className="text-gray-400">{date} - {time}</p>
+        </div>
       </div>
       {/*content*/}
       <div className="flex flex-col mb-2">
@@ -389,11 +396,14 @@ function Post({key, postId, pfp, username, content, imageUrl, likes, onUsernameC
 }
 
 
-function Feed({ currentPage, currentUser, onPageChange }) {
+function Feed({ currentPage, currentUser, onPageChange, newPostMade }) {
   const [posts, setPosts] = React.useState([]);
   const [profileClicked, setProfileClicked] = React.useState(currentUser);
   const [targetUser, setTargetUser] = React.useState(null);
   const [userOwnsProfile, setUserOwnsProfile] = React.useState(false);
+  const [paginationNumber, setPaginationNumber] = React.useState(0);
+  const [paginationHasPrevious, setPaginationHasPrevious] = React.useState(false);
+  const [paginationHasNext, setPaginationHasNext] = React.useState(false);
 
   React.useEffect(() => {
     switch (currentPage) {
@@ -401,8 +411,12 @@ function Feed({ currentPage, currentUser, onPageChange }) {
         fetch('/all_posts')
           .then(response => response.json())
           .then(data => {
+            console.log(data.pages);
             setTargetUser(null);
-            setPosts(data.posts);
+            setPaginationNumber(0);
+            setPaginationHasPrevious(data.pages[paginationNumber].hasPrevious);
+            setPaginationHasNext(data.pages[paginationNumber].hasNext);
+            setPosts(data.pages[paginationNumber].posts);
           });
         break;
       
@@ -428,8 +442,8 @@ function Feed({ currentPage, currentUser, onPageChange }) {
       default:
         break;
     }    
-  // reruns when currentPage is updated
-  }, [currentPage]);
+  // reruns when currentPage or newPostMade is updated
+  }, [currentPage, newPostMade]);
 
   React.useEffect(() => {
     setProfileClicked(currentUser);
@@ -440,6 +454,42 @@ function Feed({ currentPage, currentUser, onPageChange }) {
     setProfileClicked(username);
     onPageChange('profile');
   }
+
+  function handlePaginationChange(action) {
+    console.log('paginatijn change');
+    if (action === 'forward') {
+      if (paginationHasNext) {
+        setPaginationNumber(paginationNumber + 1);
+      }
+    } else {
+      if (paginationHasPrevious) {
+        setPaginationNumber(paginationNumber - 1);
+      }
+    }
+    // I was fetching the next/previous page in this function but it took 2 clicks to change
+    // pages and my states were getting out of control so I added "paginationNumber" to the
+    // useEffect bellow
+  }
+
+  React.useEffect(() => {
+    switch (currentPage) {
+      case 'home':
+        fetch('/all_posts')
+          .then(response => response.json())
+          .then(data => {
+            console.log(data.pages);
+            setTargetUser(null);
+            setPaginationHasPrevious(data.pages[paginationNumber].hasPrevious);
+            setPaginationHasNext(data.pages[paginationNumber].hasNext);
+            setPosts(data.pages[paginationNumber].posts);
+          });
+        break;
+
+      default:
+        break;
+    }    
+  }, [paginationNumber]);
+
 
   return (
     <>
@@ -464,8 +514,26 @@ function Feed({ currentPage, currentUser, onPageChange }) {
         content={post.content}
         imageUrl={post.image_url}
         likes={post.likes}
+        date={post.datetime.slice(0, 10).replace(/-/g, '/')}
+        time={post.datetime.slice(11, 16)}
         />
       ))}
+      <div className="flex justify-center w-full py-4">
+        {paginationHasPrevious && (
+          <button onClick={() => handlePaginationChange('backwards')} className="text-[#1DA1F2] hover:text-[#1d8ff2]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-caret-left-fill" viewBox="0 0 16 16">
+              <path d="m3.86 8.753 5.482 4.796c.646.566 1.658.106 1.658-.753V3.204a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506z"/>
+            </svg>
+          </button>
+        )}
+        {paginationHasNext && (
+          <button onClick={() => handlePaginationChange('forward')} className="text-[#1DA1F2] hover:text-[#1d8ff2]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+              <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+            </svg>
+          </button>
+        )}
+      </div>
     </>
   );
 }

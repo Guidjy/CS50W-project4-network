@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
 import json
 
 from .models import User, Post, Following
@@ -135,7 +136,20 @@ def all_posts(request):
     all_posts = list()
     for post in posts:
         all_posts.append(post.to_dict())
-    return JsonResponse({'posts': all_posts})
+    
+    # splits the list into pages of 10 posts
+    p = Paginator(all_posts, 10)
+    pages = []
+    for i in range (p.num_pages):
+        page = {
+            'pageNumber': i + 1,
+            'hasPrevious': p.page(i+1).has_previous(),
+            'hasNext': p.page(i+1).has_next(),
+            'posts': p.page(i+1).object_list,
+        }
+        pages.append(page)
+        
+    return JsonResponse({'posts': all_posts, 'pages': pages})
 
 
 def profile_page(request, username):
@@ -256,4 +270,4 @@ def following(request):
         posts[i] = posts[i].to_dict()
     
     return JsonResponse({'posts': posts})
-    
+
