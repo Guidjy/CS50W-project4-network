@@ -327,10 +327,12 @@ function NewPostForm({pfp, onSubmit}) {
 }
 
 
-function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onUsernameClick, date, time}) {
+function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onUsernameClick, date, time, editPost}) {
   const [liked, setLiked] = React.useState(false);
   const [likeCount, setLikeCount] = React.useState(likes);
   const [editingPost, setEditingPost] = React.useState(false);
+  const [postHasBeenEdited, setPostHasBeenEdited] = React.useState(false);
+  const [editedContent, setEditedContent] = React.useState('');
 
   function handleLike() {
     if (liked) {
@@ -359,6 +361,8 @@ function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onU
     .then(message => {
       if (message.message === 'post edited successfuly') {
         setEditingPost(false);
+        setPostHasBeenEdited(true);
+        setEditedContent(newContent);
       }
     });
   }
@@ -380,10 +384,14 @@ function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onU
       </div>
       {/*content*/}
       {editingPost ? (
-        <EditPostForm author={username} postId={postId} content={content} onSave={editPost} />
+        <EditPostForm author={username} postId={postId} content={content} onSave={(editPost)} />
       ) : 
         <div className="flex flex-col mb-2">
-          <p>{content}</p>
+          {postHasBeenEdited ? (
+            <p>{editedContent}</p>
+          ) : (
+            <p>{content}</p>
+          )}
         </div> 
       }
       {/*image and likes*/}
