@@ -327,11 +327,10 @@ function NewPostForm({pfp, onSubmit}) {
 }
 
 
-function Post({currentUser, postId, pfp, username, initialContent, imageUrl, likes, onUsernameClick, date, time}) {
+function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onUsernameClick, date, time}) {
   const [liked, setLiked] = React.useState(false);
   const [likeCount, setLikeCount] = React.useState(likes);
   const [editingPost, setEditingPost] = React.useState(false);
-  const [content, setContent] = React.useState(initialContent);
 
   function handleLike() {
     if (liked) {
@@ -360,7 +359,6 @@ function Post({currentUser, postId, pfp, username, initialContent, imageUrl, lik
     .then(message => {
       if (message.message === 'post edited successfuly') {
         setEditingPost(false);
-        setContent(newContent);
       }
     });
   }
@@ -582,7 +580,7 @@ function Feed({ currentPage, currentUser, onPageChange, newPostMade }) {
         pfp={post.author.pfp} 
         username={post.author.username}
         onUsernameClick={handleProfileClick}
-        initialContent={post.content}
+        content={post.content}
         imageUrl={post.image_url}
         likes={post.likes}
         date={post.datetime.slice(0, 10).replace(/-/g, '/')}
