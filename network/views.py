@@ -300,10 +300,15 @@ def following(request):
 def edit_post(request, post_id):
     # I've never used this bih before 0-0
     if request.method == 'PATCH':
-        print(request.body)
+        # gets new post content
+        new_content = str(request.body)
+        new_content = new_content[2 : len(new_content) - 1]
+        # replaces old content
         post = Post.objects.get(id=post_id)
-        print(post)
-        return JsonResponse({'post': '0-0'})
+        post.content = new_content
+        post.save()
+        
+        return JsonResponse({'message': 'post edited successfuly', 'post': post.to_dict()})
         
     
     else:
