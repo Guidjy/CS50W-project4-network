@@ -342,12 +342,23 @@ function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onU
     }
   }
 
-  function editPost() {
+  function enablePostEdit() {
     if (editingPost) {
       setEditingPost(false);
     } else {
       setEditingPost(true);
     }
+  }
+
+  function editPost(newContent) {
+    fetch(`edit_post/${postId}`, {
+      method: 'PATCH',
+      body: newContent
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+    });
   }
 
 
@@ -362,12 +373,12 @@ function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onU
         </div>
         <div className="flex flex-col mb-2 mt-1 w-1/2 items-end">
           <p className="text-gray-400 mb-2">{date} - {time}</p>
-          {currentUser === username && (<button onClick={editPost} className="bg-[#1DA1F2] hover:bg-[#1d8ff2] px-2 rounded-xl">Edit</button>)}
+          {currentUser === username && (<button onClick={enablePostEdit} className="bg-[#1DA1F2] hover:bg-[#1d8ff2] px-2 rounded-xl">Edit</button>)}
         </div>
       </div>
       {/*content*/}
       {editingPost ? (
-        <EditPostForm author={username} postId={postId} content={content} />
+        <EditPostForm author={username} postId={postId} content={content} onSave={editPost} />
       ) : 
         <div className="flex flex-col mb-2">
           <p>{content}</p>
@@ -410,14 +421,15 @@ function Post({currentUser, postId, pfp, username, content, imageUrl, likes, onU
 }
 
 
-function EditPostForm({author, postId, content}) {
+function EditPostForm({author, postId, content, onSave}) {
   const [newContent, setNewContent] = React.useState(content);
 
   return (
     <>
-      <div className="w-full">
+      <div className="flex flex-col w-full items-end mb-2">
         <textarea id="post-content" value={newContent} className="mb-2 bg-[#424549] rounded-xl resize-none focus:outline-none w-full h-48 lg:h-32" maxLength="280"
         onChange={(event) => setNewContent(event.target.value)} />
+        <button onClick={() => onSave(newContent)} className="bg-[#1DA1F2] hover:bg-[#1d8ff2] px-2 rounded-xl">Save</button>
       </div>
     </>
   )

@@ -299,9 +299,11 @@ def following(request):
 @csrf_exempt
 def edit_post(request, post_id):
     # I've never used this bih before 0-0
-    if request.method == 'GET':
-        post = Post.objects.get(id=id)
-        return JsonResponse({'post': post})
+    if request.method == 'PATCH':
+        print(request.body)
+        post = Post.objects.get(id=post_id)
+        print(post)
+        return JsonResponse({'post': '0-0'})
         
     
     else:
