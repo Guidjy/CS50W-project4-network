@@ -149,7 +149,7 @@ def all_posts(request):
         }
         pages.append(page)
         
-    return JsonResponse({'posts': all_posts, 'pages': pages})
+    return JsonResponse({'pages': pages})
 
 
 def profile_page(request, username):
@@ -170,6 +170,18 @@ def profile_page(request, username):
     user_posts = []
     for post in posts:
         user_posts.append(post.to_dict())
+    
+    # splits the list into pages of 10 posts
+    p = Paginator(user_posts, 10)
+    pages = []
+    for i in range (p.num_pages):
+        page = {
+            'pageNumber': i + 1,
+            'hasPrevious': p.page(i+1).has_previous(),
+            'hasNext': p.page(i+1).has_next(),
+            'posts': p.page(i+1).object_list,
+        }
+        pages.append(page)
 
     # gets current user
     currrent_user = request.user
@@ -178,7 +190,7 @@ def profile_page(request, username):
     if currrent_user.username == target_user['username']:
         user_owns_profile = True
     
-    return JsonResponse({'targetUser': target_user, 'userOwnsProfile': user_owns_profile, 'posts': user_posts})
+    return JsonResponse({'targetUser': target_user, 'userOwnsProfile': user_owns_profile, 'pages': pages})
 
 
 def is_following(request, user1, user2):
@@ -268,6 +280,18 @@ def following(request):
     posts = list(Post.objects.filter(author__in=following_users).order_by('datetime').reverse())
     for i in range(len(posts)):
         posts[i] = posts[i].to_dict()
+        
+    # splits the list into pages of 10 posts
+    p = Paginator(posts, 10)
+    pages = []
+    for i in range (p.num_pages):
+        page = {
+            'pageNumber': i + 1,
+            'hasPrevious': p.page(i+1).has_previous(),
+            'hasNext': p.page(i+1).has_next(),
+            'posts': p.page(i+1).object_list,
+        }
+        pages.append(page)
     
-    return JsonResponse({'posts': posts})
+    return JsonResponse({'posts': posts, 'pages': pages})
 

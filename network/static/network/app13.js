@@ -406,14 +406,13 @@ function Feed({ currentPage, currentUser, onPageChange, newPostMade }) {
   const [paginationHasNext, setPaginationHasNext] = React.useState(false);
 
   React.useEffect(() => {
+    setPaginationNumber(0);
     switch (currentPage) {
       case 'home':
         fetch('/all_posts')
           .then(response => response.json())
           .then(data => {
-            console.log(data.pages);
             setTargetUser(null);
-            setPaginationNumber(0);
             setPaginationHasPrevious(data.pages[paginationNumber].hasPrevious);
             setPaginationHasNext(data.pages[paginationNumber].hasNext);
             setPosts(data.pages[paginationNumber].posts);
@@ -426,7 +425,9 @@ function Feed({ currentPage, currentUser, onPageChange, newPostMade }) {
         .then(data => {
           setTargetUser(data.targetUser);
           setUserOwnsProfile(data.userOwnsProfile);
-          setPosts(data.posts);
+          setPaginationHasPrevious(data.pages[paginationNumber].hasPrevious);
+          setPaginationHasNext(data.pages[paginationNumber].hasNext);
+          setPosts(data.pages[paginationNumber].posts);
         });
         break;
       
@@ -435,7 +436,9 @@ function Feed({ currentPage, currentUser, onPageChange, newPostMade }) {
         .then(response => response.json())
         .then(data => {
           setTargetUser(null);
-          setPosts(data.posts);
+          setPaginationHasPrevious(data.pages[paginationNumber].hasPrevious);
+          setPaginationHasNext(data.pages[paginationNumber].hasNext);
+          setPosts(data.pages[paginationNumber].posts);
         });
         break;
       
@@ -477,13 +480,37 @@ function Feed({ currentPage, currentUser, onPageChange, newPostMade }) {
         fetch('/all_posts')
           .then(response => response.json())
           .then(data => {
-            console.log(data.pages);
             setTargetUser(null);
             setPaginationHasPrevious(data.pages[paginationNumber].hasPrevious);
             setPaginationHasNext(data.pages[paginationNumber].hasNext);
             setPosts(data.pages[paginationNumber].posts);
           });
         break;
+      
+      case 'profile':
+        fetch(`/profile_page/${profileClicked}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data.pages);
+          setTargetUser(data.targetUser);
+          setUserOwnsProfile(data.userOwnsProfile);
+          setPaginationHasPrevious(data.pages[paginationNumber].hasPrevious);
+          setPaginationHasNext(data.pages[paginationNumber].hasNext);
+          setPosts(data.pages[paginationNumber].posts);
+        });
+        break;
+
+      case 'following':
+        fetch('/following')
+        .then(response => response.json())
+        .then(data => {
+          setTargetUser(null);
+          setPaginationHasPrevious(data.pages[paginationNumber].hasPrevious);
+          setPaginationHasNext(data.pages[paginationNumber].hasNext);
+          setPosts(data.pages[paginationNumber].posts);
+        });
+        break;
+
 
       default:
         break;
